@@ -1,5 +1,5 @@
 ---
-name: weather
+name: skill-weather
 description: >
   Query weather. Triggers on: 天气, 温度, 下雨, 带伞, 出游, 热不热,
   明天会下雨吗, 周末天气, 出门, weather, temperature, rain, forecast.

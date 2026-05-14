@@ -24,7 +24,7 @@ Query real-time weather by city.
 ## Install
 
 ```bash
-npx skills add coding327/lc-skills --path skills/weather
+npx skills add coding327/lc-skills --path skills/skill-weather
 ```
 
 ## License
