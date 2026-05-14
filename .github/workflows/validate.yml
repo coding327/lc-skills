@@ -1,0 +1,63 @@
+name: Validate Skills
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Detect changed skills
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+          fi
+          echo "Comparing HEAD against $BASE"
+          CHANGED=$(git diff --name-only "$BASE" HEAD -- skills/ | cut -d'/' -f2 | sort -u)
+          if [ -z "$CHANGED" ]; then
+            CHANGED=$(ls -d skills/*/ | xargs -n1 basename)
+          fi
+          echo "skills=$CHANGED" >> $GITHUB_OUTPUT
+          echo "Changed skills: $CHANGED"
+
+      - name: Validate changed skills
+        run: |
+          echo '${{ steps.changed.outputs.skills }}' | while read -r name; do
+            [ -z "$name" ] && continue
+            skill="skills/$name"
+            echo "::group::Validating $name"
+
+            if [ ! -f "$skill/SKILL.md" ]; then
+              echo "::error::$name has no SKILL.md"
+              continue
+            fi
+
+            python skills/skill-forge/scripts/quick_validate.py "$skill"
+            if [ $? -ne 0 ]; then
+              echo "::error::SKILL.md validation failed for $name"
+              exit 1
+            fi
+
+            if [ ! -f "$skill/README.md" ]; then
+              echo "::error::$name is missing README.md"
+              exit 1
+            fi
+
+            echo "::endgroup::"
+          done
+          echo "All changed skills validated successfully"

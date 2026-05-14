@@ -1,0 +1,16 @@
+---
+name: Bug Report
+about: Report a problem with a skill
+title: "[Bug] "
+labels: bug
+---
+
+**Skill**: <!-- which skill has the problem? -->
+
+**What happened**:
+
+**What was expected**:
+
+**Steps to reproduce**:
+
+**Environment**: OS / Claude Code version / model
